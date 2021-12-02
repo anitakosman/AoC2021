@@ -1,22 +1,16 @@
 package anita.aoc
 
 import anita.aoc.Util._
-import scala.io.Source
 
 object Day1 {
   def part1(): Int = {
-    val resource = Source.fromResource("day1.txt")
-    val depths = resource.getLines().toList.map(_.toInt)
-    resource.close()
-    countIncreases(depths)
+    val input = getInput(1)
+    countIncreases(input.map(_.toInt))
   }
 
   def part2(): Int = {
-    val resource = Source.fromResource("day1.txt")
-    val depths = resource.getLines().toList.map(_.toInt)
-    resource.close()
-    val triples = depths.sliding(3).toList.map(_.sum)
-    countIncreases(triples)
+    val input = getInput(1)
+    countIncreases(input.map(_.toInt).sliding(3).toList.map(_.sum))
   }
 
   def main(args: Array[String]): Unit ={

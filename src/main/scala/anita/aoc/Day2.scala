@@ -3,23 +3,17 @@ package anita.aoc
 import anita.aoc.Util._
 
 import scala.annotation.tailrec
-import scala.io.Source
 import scala.util.matching.Regex
 
 object Day2 {
-
   def part1(): Int = {
-    val resource = Source.fromResource("day2.txt")
-    val input = resource.getLines().toList
-    resource.close()
+    val input = getInput(2)
     val (x,d) = followMadeUpInstructions(input, 0, 0)
     x * d
   }
 
   def part2(): Int = {
-    val resource = Source.fromResource("day2.txt")
-    val input = resource.getLines().toList
-    resource.close()
+    val input = getInput(2)
     val (x,d) = followActualInstructions(input, 0, 0, 0)
     x * d
   }
