@@ -5,6 +5,8 @@ import anita.aoc.Util._
 import scala.annotation.tailrec
 
 object Day4 {
+  type Board = Set[Set[Int]]
+
   def part1(): Int = {
     val (numbers, boards) = parseInput
     playGame(numbers, boards, _ => true, _ => true)
@@ -20,21 +22,21 @@ object Day4 {
     println(part2())
   }
 
-  private def parseInput: (Array[Int], Set[Set[Set[Int]]]) = {
+  def parseInput: (Array[Int], Set[Board]) = {
     val input = getInput(4)
     val numbers = input.head.split(",").map(_.toInt)
     val boards = input.drop(1).grouped(6).map(_.drop(1).map(_.trim().split(" +").map(_.toInt)))
     (numbers, boards.map(boardToWinPosibilities).toSet)
   }
 
-  def boardToWinPosibilities(l: List[Array[Int]]): Set[Set[Int]] = {
+  def boardToWinPosibilities(l: List[Array[Int]]): Board = {
     l.map(_.toSet).toSet ++ l.transpose.map(_.toSet).toSet
   }
 
   @tailrec
-  def playGame(numbers: Array[Int], boards: Set[Set[Set[Int]]], canWin: Set[Set[Set[Int]]] => Boolean, filter: Set[Set[Int]] => Boolean): Int = {
-    val board = if (canWin(boards)) boards.find(_(Set(numbers.head))) else None
-    if (board.isDefined) return numbers.head * (board.get.flatten.sum - numbers.head)
-    playGame(numbers.tail, boards.map(board => board.map(_ - numbers.head)).filter(filter), canWin, filter)
+  def playGame(numbers: Array[Int], boards: Set[Board], mayWin: Set[Board] => Boolean, filter: Board => Boolean): Int = {
+    val board = if (mayWin(boards)) boards.find(_(Set(numbers.head))) else None
+    if (board.isDefined) numbers.head * (board.get.flatten.sum - numbers.head)
+    else playGame(numbers.tail, boards.map(board => board.map(_ - numbers.head)).filter(filter), mayWin, filter)
   }
 }
