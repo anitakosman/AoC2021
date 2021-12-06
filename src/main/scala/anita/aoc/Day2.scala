@@ -6,16 +6,20 @@ import scala.annotation.tailrec
 import scala.util.matching.Regex
 
 object Day2 {
-  def part1(): Int = {
-    val input = getInput(2)
+  def part1(input: List[String]): Int = {
     val (x,d) = followMadeUpInstructions(input, 0, 0)
     x * d
   }
 
-  def part2(): Int = {
-    val input = getInput(2)
+  def part2(input: List[String]): Int = {
     val (x,d) = followActualInstructions(input, 0, 0, 0)
     x * d
+  }
+
+  def main(args: Array[String]): Unit ={
+    val input = getInput(2)
+    println(part1(input))
+    println(part2(input))
   }
 
   val instruction = new Regex("(forward|down|up) (\\d+)")
@@ -33,10 +37,5 @@ object Day2 {
     case instruction("down", n) :: tail => followActualInstructions(tail, x, d, a + n.toInt)
     case instruction("up", n) :: tail => followActualInstructions(tail, x, d, a - n.toInt)
     case Nil => (x, d)
-  }
-
-  def main(args: Array[String]): Unit ={
-    println(part1())
-    println(part2())
   }
 }

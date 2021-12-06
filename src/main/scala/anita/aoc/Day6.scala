@@ -6,19 +6,18 @@ import scala.annotation.tailrec
 import scala.util.matching.Regex
 
 object Day6 {
-  def part1(): BigInt = {
-    val fish = parseInput()
+  def part1(fish: Map[Int, BigInt]): BigInt = {
     live(fish, 80)
   }
 
-  def part2(): BigInt = {
-    val fish = parseInput()
+  def part2(fish: Map[Int, BigInt]): BigInt = {
     live(fish, 256)
   }
 
   def main(args: Array[String]): Unit ={
-    println(part1())
-    println(part2())
+    val fish = parseInput()
+    println(part1(fish))
+    println(part2(fish))
   }
 
   def parseInput():  Map[Int, BigInt] = {

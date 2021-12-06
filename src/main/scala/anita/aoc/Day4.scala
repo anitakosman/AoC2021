@@ -7,19 +7,18 @@ import scala.annotation.tailrec
 object Day4 {
   type Board = Set[Set[Int]]
 
-  def part1(): Int = {
-    val (numbers, boards) = parseInput
+  def part1(numbers: Array[Int], boards: Set[Board]): Int = {
     playGame(numbers, boards, _ => true, _ => true)
   }
 
-  def part2(): Int = {
-    val (numbers, boards) = parseInput
+  def part2(numbers: Array[Int], boards: Set[Board]): Int = {
     playGame(numbers, boards, _.size == 1, board => !board(Set.empty[Int]))
   }
 
   def main(args: Array[String]): Unit ={
-    println(part1())
-    println(part2())
+    val (numbers, boards) = parseInput
+    println(part1(numbers, boards))
+    println(part2(numbers, boards))
   }
 
   def parseInput: (Array[Int], Set[Board]) = {

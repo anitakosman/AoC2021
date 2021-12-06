@@ -5,23 +5,26 @@ import anita.aoc.Util._
 import scala.annotation.tailrec
 
 object Day3 {
-  def part1(): Int = {
-    val input = getInput(3).map(s => s.split("").map(_.toInt))
+  def part1(input: List[Array[Int]]): Int = {
     val perBit = input.transpose
     val gamma = binaryToInt(perBit.map(_.groupBy(identity).maxBy(_._2.size)._1))
     gamma * (4095 ^ gamma)
   }
 
-  def part2(): Int = {
-    val input = getInput(3).map(s => s.split("").map(_.toInt))
+  def part2(input: List[Array[Int]]): Int = {
     val oxygen = binaryToInt(getTheOne(input, filterOnMostCommonBit))
     val co2 = binaryToInt(getTheOne(input, filterOnLeastCommonBit))
     oxygen * co2
   }
 
   def main(args: Array[String]): Unit ={
-    println(part1())
-    println(part2())
+    val input = parseInput
+    println(part1(input))
+    println(part2(input))
+  }
+
+  private def parseInput: List[Array[Int]] = {
+    getInput(3).map(s => s.split("").map(_.toInt))
   }
 
   def binaryToInt(b: List[Int]) = {

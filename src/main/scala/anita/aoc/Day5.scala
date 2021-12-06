@@ -7,19 +7,20 @@ import scala.util.matching.Regex
 object Day5 {
   type Line = Iterable[(Int,Int)]
 
-  def part1(): Int = {
-    val lines = parseInput(false)
+  def part1(input: List[String]): Int = {
+    val lines = parseInput(input, false)
     lines.flatten.groupBy(identity).count(_._2.size > 1)
   }
 
-  def part2(): Int = {
-    val lines = parseInput(true)
+  def part2(input: List[String]): Int = {
+    val lines = parseInput(input, true)
     lines.flatten.groupBy(identity).count(_._2.size > 1)
   }
 
   def main(args: Array[String]): Unit ={
-    println(part1())
-    println(part2())
+    val input = getInput(5)
+    println(part1(input))
+    println(part2(input))
   }
 
   def getLine(x1: Int, y1: Int, x2: Int, y2: Int, alsoDiagonals: Boolean): Line = {
@@ -32,8 +33,7 @@ object Day5 {
     else List.empty
   }
 
-  def parseInput(alsoDiagonals: Boolean):  List[Line] = {
-    val input = getInput(5)
+  def parseInput(input: List[String], alsoDiagonals: Boolean):  List[Line] = {
     val lineRegex = new Regex("(\\d+),(\\d+) -> (\\d+),(\\d+)")
     input.map{ case lineRegex(x1,y1,x2,y2) => getLine(x1.toInt,y1.toInt,x2.toInt,y2.toInt, alsoDiagonals)}
   }
