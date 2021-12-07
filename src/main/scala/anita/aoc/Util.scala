@@ -11,4 +11,6 @@ object Util {
   }
 
   def zipWithNext[A](l: List[A]): List[(A,A)] = l zip l.tail
+
+  def triangularNumber(n: Int): Int = n * (n + 1) / 2
 }
