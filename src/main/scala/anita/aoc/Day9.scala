@@ -29,17 +29,21 @@ object Day9 {
   def lowestPoints(cave: Cave): List[(Int, Int)] = {
     val m = cave.keys.map(_._1).max
     val n = cave.keys.map(_._2).max
-    (0 to m).flatMap(x => (0 to n).map(y => (x,y))).filter{ case (x, y) =>
-      (x == 0 || cave((x - 1, y)) > cave((x,y))) &&
-        (y == 0 || cave((x, y - 1)) > cave((x,y))) &&
-        (x == m || cave((x + 1, y)) > cave((x,y))) &&
-        (y == n || cave((x, y + 1)) > cave((x,y)))
-    }.toList
+    val seq = for {
+      x <- 0 to m
+      y <- 0 to n
+      if x == 0 || cave((x - 1, y)) > cave((x,y))
+      if y == 0 || cave((x, y - 1)) > cave((x,y))
+      if x == m || cave((x + 1, y)) > cave((x,y))
+      if y == n || cave((x, y + 1)) > cave((x,y))
+    } yield (x, y)
+    seq.toList
   }
 
   def basinSize(cave: Cave, p: (Int, Int)): Int = {
     val m = cave.keys.map(_._1).max
     val n = cave.keys.map(_._2).max
+    @tailrec
     def go(basin: Basin, prev: Basin): Basin = {
       if (basin == prev) basin
       else go(exploreBasin(basin, cave, m, n) , basin)
