@@ -3,8 +3,8 @@ package anita.aoc
 import scala.io.Source
 
 object Util {
-  def getInput(day: Int): List[String] = {
-    val resource = Source.fromResource(s"day$day.txt")
+  def getInput(number: Int, prefix: String = "day"): List[String] = {
+    val resource = Source.fromResource(s"$prefix$number.txt")
     val input = resource.getLines().toList
     resource.close()
     input
