@@ -13,4 +13,12 @@ object Util {
   def zipWithNext[A](l: List[A]): List[(A,A)] = l zip l.tail
 
   def triangularNumber(n: Int): Int = n * (n + 1) / 2
+
+  implicit class StringExtension(val s: String) {
+    def toInt(radix: Int): Int = Integer.parseInt(s, radix)
+
+    def toLong(radix: Int): Long = java.lang.Long.parseLong(s, radix)
+
+    def padStart(len: Int, c: Char): String = List.fill(len - s.length)(c).mkString + s
+  }
 }
