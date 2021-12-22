@@ -21,4 +21,8 @@ object Util {
 
     def padStart(len: Int, c: Char): String = List.fill(len - s.length)(c).mkString + s
   }
+
+  implicit class IntExtension(val n: Int) {
+    def myMod(m: Int): Int = if (n % m == 0) m else n % m
+  }
 }
