@@ -2,25 +2,28 @@ package anita.aoc
 
 import anita.aoc.Util.getInput
 
-import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.util.matching.Regex
 
 object Day22 {
-  case class Instruction(on: Boolean, fromX: Int, toX: Int, fromY: Int, toY: Int, fromZ: Int, toZ: Int)
-  class Cube(val x: Int, val y: Int, val z: Int)
+  case class Instruction(on: Boolean, cube: Cuboid)
 
-  def part1(instructions: List[Instruction]): Int = {
-    countOn(instructions, -50, 50, -50, 50, -50, 50)
+  case class Cuboid(fromX: Long, toX: Long, fromY: Long, toY: Long, fromZ: Long, toZ: Long) {
+    def size: Long = if (toX < fromX || toY < fromY || toZ < fromZ) 0L
+    else (toX - fromX + 1L) * (toY - fromY + 1L) * (toZ - fromZ + 1L)
+
+    def intersect(other: Cuboid): Cuboid =
+      Cuboid(math.max(fromX, other.fromX), math.min(toX, other.toX),
+        math.max(fromY, other.fromY), math.min(toY, other.toY),
+        math.max(fromZ, other.fromZ), math.min(toZ, other.toZ))
+  }
+
+  def part1(instructions: List[Instruction]): Long = {
+    countOn(instructions, Cuboid(-50, 50, -50, 50, -50, 50))
   }
 
   def part2(instructions: List[Instruction]): Long = {
-    val minX = instructions.map(_.fromX).min
-    val maxX = instructions.map(_.toX).max
-    val minY = instructions.map(_.fromY).min
-    val maxY = instructions.map(_.toY).max
-    val minZ = instructions.map(_.fromZ).min
-    val maxZ = instructions.map(_.toZ).max
-    countOn(instructions, minX, maxX, minY, maxY, minZ, maxZ)
+    countOn(instructions, Cuboid(-99999, 99999, -99999, 99999, -99999, 99999))
   }
 
   def main(args: Array[String]): Unit = {
@@ -32,24 +35,33 @@ object Day22 {
   def parseInput(): List[Instruction] = {
     val instructionRegex = new Regex("(on|off) x=(-?\\d+)..(-?\\d+),y=(-?\\d+)..(-?\\d+),z=(-?\\d+)..(-?\\d+)")
     getInput(22).map { case instructionRegex(onOff, fromX, toX, fromY, toY, fromZ, toZ) =>
-      Instruction(onOff == "on", fromX.toInt, toX.toInt, fromY.toInt, toY.toInt, fromZ.toInt, toZ.toInt)
+      Instruction(onOff == "on", Cuboid(fromX.toLong, toX.toLong, fromY.toLong, toY.toLong, fromZ.toLong, toZ.toLong))
     }.reverse
   }
 
-  private def countOn(instructions: List[Instruction], fromX: Int, toX: Int, fromY: Int, toY: Int, fromZ: Int, toZ: Int): Int = {
-    (for {
-      x <- fromX to toX
-      y <- fromY to toY
-      z <- fromZ to toZ
-      if isCubeOn(new Cube(x, y, z), instructions)
-    } yield null).size
-  }
+  private def countOn(instructions: List[Instruction], cube: Cuboid): Long = {
+    val cache = new mutable.HashMap[(Long, Cuboid), Long]()
 
-  @tailrec
-  def isCubeOn(cube: Cube, instructions: List[Instruction]): Boolean = instructions.headOption match {
-    case None => false
-    case Some(Instruction(on, fromX, toX, fromY, toY, fromZ, toZ))
-      if fromX <= cube.x && cube.x <= toX && fromY <= cube.y && cube.y <= toY && fromZ <= cube.z && cube.z <= toZ => on
-    case _ => isCubeOn(cube, instructions.tail)
+    def go(instructions: List[Instruction], regionCube: Cuboid): Long = {
+      if (regionCube.size == 0) 0L
+      else cache.getOrElseUpdate((instructions.size, regionCube),
+        instructions.headOption match {
+          case None => 0L
+          case Some(Instruction(true, instructionCube)) =>
+            val alreadyOn = countOn(instructions.tail, regionCube)
+            val intersection = instructionCube.intersect(regionCube)
+            val newOn = intersection.size
+            val doubleOn = countOn(instructions.tail, intersection)
+            alreadyOn + newOn - doubleOn
+          case Some(Instruction(false, instructionCube)) =>
+            val alreadyOn = countOn(instructions.tail, regionCube)
+            val intersection = instructionCube.intersect(regionCube)
+            val newOff = countOn(instructions.tail, intersection)
+            alreadyOn - newOff
+        }
+      )
+    }
+
+    go(instructions, cube)
   }
 }
