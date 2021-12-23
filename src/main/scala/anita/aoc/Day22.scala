@@ -6,18 +6,21 @@ import scala.annotation.tailrec
 import scala.util.matching.Regex
 
 object Day22 {
-  type Cuboid = Set[(Int, Int, Int)]
+  case class Instruction(on: Boolean, fromX: Int, toX: Int, fromY: Int, toY: Int, fromZ: Int, toZ: Int)
+  class Cube(val x: Int, val y: Int, val z: Int)
 
-  def part1(input: List[String]): Int = {
-    onCubes(input, toLimitedCuboid(-50, 50, -50, 50, -50, 50)).size
+  def part1(instructions: List[Instruction]): Int = {
+    countOn(instructions, -50, 50, -50, 50, -50, 50)
   }
 
-  def part2(input: List[String]): Long = {
-    (for {
-      minX <- (-100000 to 99900 by 100)
-      minY <- (-100000 to 99900 by 100)
-      minZ <- (-100000 to 99900 by 100)
-    } yield onCubes(input, toLimitedCuboid(minX, minX + 100, minY, minY + 100, minZ, minZ + 100)).size.toLong).sum
+  def part2(instructions: List[Instruction]): Long = {
+    val minX = instructions.map(_.fromX).min
+    val maxX = instructions.map(_.toX).max
+    val minY = instructions.map(_.fromY).min
+    val maxY = instructions.map(_.toY).max
+    val minZ = instructions.map(_.fromZ).min
+    val maxZ = instructions.map(_.toZ).max
+    countOn(instructions, minX, maxX, minY, maxY, minZ, maxZ)
   }
 
   def main(args: Array[String]): Unit = {
@@ -26,31 +29,27 @@ object Day22 {
     println(part2(input))
   }
 
-  def parseInput(): List[String] = {
-    getInput(22)
-  }
-
-  def onCubes(input: List[String], toCuboid: (String, String, String, String, String, String) => Seq[(Int, Int, Int)]): Cuboid = {
+  def parseInput(): List[Instruction] = {
     val instructionRegex = new Regex("(on|off) x=(-?\\d+)..(-?\\d+),y=(-?\\d+)..(-?\\d+),z=(-?\\d+)..(-?\\d+)")
-    @tailrec
-    def go(cubes: Cuboid, instructions: List[String]): Cuboid = instructions match {
-      case Nil => cubes
-      case instructionRegex("on", fromX, toX, fromY, toY, fromZ, toZ) :: tail =>
-        val cubesToAdd = toCuboid(fromX, toX, fromY, toY, fromZ, toZ)
-        go(cubes ++ cubesToAdd, tail)
-      case instructionRegex("off", fromX, toX, fromY, toY, fromZ, toZ) :: tail =>
-        val cubesToRemove = toCuboid(fromX, toX, fromY, toY, fromZ, toZ)
-        go(cubes -- cubesToRemove, tail)
-    }
-
-    go(Set.empty, input)
+    getInput(22).map { case instructionRegex(onOff, fromX, toX, fromY, toY, fromZ, toZ) =>
+      Instruction(onOff == "on", fromX.toInt, toX.toInt, fromY.toInt, toY.toInt, fromZ.toInt, toZ.toInt)
+    }.reverse
   }
 
-  private def toLimitedCuboid(minX: Int, maxX: Int, minY: Int, maxY: Int, minZ: Int, maxZ: Int)(fromX: String, toX: String, fromY: String, toY: String, fromZ: String, toZ: String): Seq[(Int, Int, Int)] = {
-    for {
-      x <- math.max(minX, fromX.toInt) to math.min(maxX, toX.toInt)
-      y <- math.max(minY, fromY.toInt) to math.min(maxY, toY.toInt)
-      z <- math.max(minZ, fromZ.toInt) to math.min(maxZ, toZ.toInt)
-    } yield (x, y, z)
+  private def countOn(instructions: List[Instruction], fromX: Int, toX: Int, fromY: Int, toY: Int, fromZ: Int, toZ: Int): Int = {
+    (for {
+      x <- fromX to toX
+      y <- fromY to toY
+      z <- fromZ to toZ
+      if isCubeOn(new Cube(x, y, z), instructions)
+    } yield null).size
+  }
+
+  @tailrec
+  def isCubeOn(cube: Cube, instructions: List[Instruction]): Boolean = instructions.headOption match {
+    case None => false
+    case Some(Instruction(on, fromX, toX, fromY, toY, fromZ, toZ))
+      if fromX <= cube.x && cube.x <= toX && fromY <= cube.y && cube.y <= toY && fromZ <= cube.z && cube.z <= toZ => on
+    case _ => isCubeOn(cube, instructions.tail)
   }
 }
